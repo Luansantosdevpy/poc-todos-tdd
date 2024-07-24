@@ -6,6 +6,7 @@ const allTodos = require("../mock-data/all-todos.json");
 
 TodoModel.create = jest.fn();
 TodoModel.find = jest.fn();
+TodoModel.findById = jest.fn();
 
 let req, res, next;
 
@@ -14,6 +15,41 @@ beforeEach(() => {
     res = httpMocks.createResponse();
     next = jest.fn();
 });
+
+describe("TodoController.getTodoById", () => {
+    it("should have a getTodoById function", () => {
+        expect(typeof todoController.getTodoById).toBe("function");
+    });
+
+    it("should call TodoModel.findById by params", async () => {
+        req.params.todoId = "66a120f41242027ca8013268";
+        await todoController.getTodoById(req, res, next);
+        expect(TodoModel.findById).toBeCalledWith("66a120f41242027ca8013268");
+    });
+
+    it("should return json body and response code 200", async () => {
+        TodoModel.findById.mockReturnValue(newTodo);
+        await todoController.getTodoById(req, res, next);
+        expect(res.statusCode).toBe(200);
+        expect(res._isEndCalled()).toBeTruthy();
+        expect(res._getJSONData()).toStrictEqual(newTodo);
+    });
+
+    it("should return error handling", async () => {
+        const errorMessage = { message: "Not found todo" };
+        const rejectedPromise = Promise.reject(errorMessage);
+        TodoModel.findById.mockReturnValue(rejectedPromise);
+        await todoController.getTodoById(req, res, next);
+        expect(next).toBeCalledWith(errorMessage);
+    });
+
+    it("should return 404 when item doesnt exist", async () => {
+        TodoModel.findById.mockReturnValue(null);
+        await todoController.getTodoById(req, res, next);
+        expect(res.statusCode).toBe(404);
+        expect(res._isEndCalled).toBeTruthy();
+    })
+})
 
 describe("TodoController.getTodos", () => {
     it("should have a getTodos function", () => {
@@ -42,7 +78,7 @@ describe("TodoController.getTodos", () => {
     });
 })
 
-describe("TodoController.createTodo", () =>{
+describe("TodoController.createTodo", () => {
     beforeEach(() => {
         req.body = newTodo;
     });
