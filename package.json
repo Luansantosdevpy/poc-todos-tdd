@@ -1,0 +1,20 @@
+{
+  "name": "poc-todos-tdd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --watchAll"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.5.1",
+    "node-mocks-http": "^1.15.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
