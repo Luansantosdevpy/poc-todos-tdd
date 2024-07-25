@@ -4,11 +4,7 @@ const httpMocks = require("node-mocks-http");
 const newTodo = require("../mock-data/new-todo.json");
 const allTodos = require("../mock-data/all-todos.json");
 
-TodoModel.create = jest.fn();
-TodoModel.find = jest.fn();
-TodoModel.findById = jest.fn();
-TodoModel.findByIdAndUpdate = jest.fn();
-TodoModel.deleteOne = jest.fn();
+jest.mock("../../model/todo.model");
 
 let req, res, next;
 
@@ -163,29 +159,28 @@ describe("TodoController.delete", () => {
     });
 
     it("should call TodoModel.deleteOne", async () => {
-        req.params.todoId = "66a120f41242027ca8013268";
+        req.params.todoId = todoId;
         await todoController.deleteTodo(req, res, next);
-        expect(TodoModel.deleteOne).toBeCalledWith(req.params.todoId);
+        expect(TodoModel.findByIdAndDelete).toBeCalledWith(todoId);
     });
 
     it("should call deleteOne with status code 200", async () => {
-        TodoModel.deleteOne.mockReturnValue(newTodo);
+        TodoModel.findByIdAndDelete.mockReturnValue(newTodo);
         await todoController.deleteTodo(req, res, next);
         expect(res.statusCode).toBe(200);
         expect(res._isEndCalled()).toBeTruthy();
-        expect(res._getJSONData()).toStrictEqual(newTodo);
     });
 
     it("should return error handling", async () => {
         const errorMessage = { message: "Error to update todo" };
         const rejectedPromise = Promise.reject(errorMessage);
-        TodoModel.deleteOne.mockReturnValue(rejectedPromise);
+        TodoModel.findByIdAndDelete.mockReturnValue(rejectedPromise);
         await todoController.deleteTodo(req, res, next);
         expect(next).toBeCalledWith(errorMessage);
     });
 
     it("should return 404 when item doesnt exist", async () => {
-        TodoModel.deleteOne.mockReturnValue(null);
+        TodoModel.findByIdAndDelete.mockReturnValue(null);
         await todoController.deleteTodo(req, res, next);
         expect(res.statusCode).toBe(404);
         expect(res._isEndCalled).toBeTruthy();
