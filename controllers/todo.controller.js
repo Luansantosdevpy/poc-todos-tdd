@@ -31,3 +31,29 @@ exports.getTodoById = async (req, res, next) => {
         next(err);
     };
 }
+
+exports.updateTodo = async (req, res, next) => {
+    try {
+        const todo = await TodoModel.updateOne(req.params.todoId);
+        if (todo) {
+            res.status(200).json(todo);
+        } else {
+            res.status(404).send();
+        }
+    } catch (err) {
+        next(err);
+    }
+}
+
+exports.deleteTodo = async (req, res, next) => {
+    try {
+        const todo = await TodoModel.deleteOne(req.params.todoId);
+        if (todo) {
+            res.status(200).json(todo);
+        } else {
+            res.status(404).send();
+        }
+    } catch (err) {
+        next(err);
+    }
+}
